@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBU SUPREME | Unified University Ecosystem</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #f0f4f8; color: #1e293b; }
+        .mbu-blue { background: #1e3a8a; }
+        .glass { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; }
+        .btn-mbu { transition: 0.3s; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; }
+        .btn-mbu:hover { transform: translateY(-2px); filter: brightness(1.2); }
+        input, select { border: 2px solid #e2e8f0; padding: 12px; border-radius: 12px; width: 100%; margin-top: 5px; color: black; font-weight: 600; }
+        @media print { .no-print { display: none !important; } .print-area { display: block !important; position: absolute; top: 0; left: 0; width: 100%; } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="mbu-blue text-white p-4 shadow-2xl flex justify-between items-center no-print">
+        <div class="flex items-center gap-4">
+            <div class="bg-white text-blue-900 w-10 h-10 rounded-lg flex items-center justify-center font-black text-xl">M</div>
+            <div>
+                <h1 class="font-black text-lg">MBU SUPREME</h1>
+                <p class="text-[8px] font-bold tracking-[0.3em] opacity-70">ABVMU | CCS | MGUMST UNIFIED ENGINE</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="clock" class="text-xs font-mono hidden md:block"></span>
+            <button onclick="location.reload()" class="bg-red-600 px-3 py-1 rounded text-[9px] font-black uppercase">Exit</button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 p-6 no-print hidden">
+            <div class="mb-10 text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full mx-auto mb-2 flex items-center justify-center text-blue-900 font-black">MBU</div>
+                <h3 id="uName" class="font-black text-xs uppercase">User Name</h3>
+                <p id="uRole" class="text-[9px] text-blue-600 font-bold uppercase"></p>
+            </div>
+            <nav id="menu" class="space-y-2"></nav>
+        </aside>
+
+        <main id="main" class="flex-1 overflow-y-auto p-6">
+            <div id="loginGate" class="max-w-md mx-auto mt-16">
+                <div class="glass p-10">
+                    <h2 class="text-3xl font-black text-center text-blue-900 mb-8 italic">ERP GATEWAY</h2>
+                    <input id="loginID" type="text" placeholder="Access ID" class="mb-4">
+                    <input id="loginPIN" type="password" placeholder="Security PIN" class="mb-6">
+                    <button onclick="doLogin()" class="w-full mbu-blue text-white py-4 rounded-xl font-black btn-mbu">Access System</button>
+                    <div class="mt-8 grid grid-cols-3 gap-1 text-[7px] font-black text-gray-400 uppercase text-center border-t pt-4">
+                        <div>Admin<br>admin/0000</div>
+                        <div>College<br>college1/1234</div>
+                        <div>Student<br>std1/111</div>
+                    </div>
+                </div>
+                <button onclick="applyAff()" class="w-full mt-6 text-blue-900 font-black text-[10px] uppercase underline">Apply for College Affiliation</button>
+            </div>
+            
+            <div id="view" class="hidden"></div>
+        </main>
+    </div>
+
+    <script>
+        let user = null;
+        let affiliations = []; // In-memory affiliation tracking
+
+        function doLogin() {
+            const id = document.getElementById('loginID').value;
+            const pin = document.getElementById('loginPIN').value;
+            
+            if(id === 'admin' && pin === '0000') user = 'CHANCELLOR';
+            else if(id === 'college1' && pin === '1234') user = 'COLLEGE';
+            else if(id === 'std1' && pin === '111') user = 'STUDENT';
+            else { alert('Invalid Credentials'); return; }
+
+            document.getElementById('loginGate').classList.add('hidden');
+            document.getElementById('sidebar').classList.remove('hidden');
+            document.getElementById('view').classList.remove('hidden');
+            renderUI();
+        }
+
+        function renderUI() {
+            const menu = document.getElementById('menu');
+            document.getElementById('uRole').innerText = user;
+            document.getElementById('uName').innerText = user === 'CHANCELLOR' ? 'Supreme Admin' : (user === 'COLLEGE' ? 'MBU College 01' : 'Rahul Singh');
+
+            const btnClass = "w-full text-left p-3 rounded-xl text-[10px] font-black uppercase flex items-center gap-3 ";
+
+            if(user === 'CHANCELLOR') {
+                menu.innerHTML = `
+                    <button onclick="chanGod()" class="${btnClass} bg-red-600 text-white"><i class="fas fa-crown"></i> God Mode</button>
+                    <button onclick="chanAff()" class="${btnClass} hover:bg-gray-100"><i class="fas fa-university"></i> Review Affiliations</button>
+                    <button onclick="chanExam()" class="${btnClass} hover:bg-gray-100"><i class="fas fa-map-marker-alt"></i> Exam Center Map</button>
+                    <button onclick="chanSMS()" class="${btnClass} hover:bg-gray-100 text-blue-700"><i class="fas fa-sms"></i> SMS Broadcaster</button>`;
+                chanGod();
+            } else if(user === 'COLLEGE') {
+                menu.innerHTML = `
+                    <button onclick="colAdm()" class="${btnClass} bg-blue-900 text-white"><i class="fas fa-user-plus"></i> New Admission</button>
+                    <button onclick="colExam()" class="${btnClass} hover:bg-gray-100"><i class="fas fa-id-card"></i> Admit Cards</button>
+                    <button onclick="colFee()" class="${btnClass} hover:bg-gray-100 text-green-700"><i class="fas fa-wallet"></i> Fee Ledger</button>`;
+                colAdm();
+            } else {
+                studentDashboard();
+            }
+        }
+
+        // --- CHANCELLOR FUNCTIONS ---
+        function chanGod() {
+            document.getElementById('view').innerHTML = `
+                <h2 class="text-3xl font-black mb-6 text-red-600 italic">SUPREME GOD MODE</h2>
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="glass p-8 border-t-4 border-red-600">
+                        <p class="font-black text-xs mb-4 uppercase">Database Override (Back-Date Entry)</p>
+                        <input placeholder="Student ID/Roll No">
+                        <select class="mt-2"><option>Modify Marks</option><option>Override Admission Date</option><option>Change Course</option></select>
+                        <button onclick="alert('Chancellor Override Successful!')" class="w-full bg-black text-white p-3 rounded-xl mt-4 font-black text-[10px] uppercase">Execute Sync</button>
+                    </div>
+                    <div class="glass p-8">
+                        <p class="font-black text-xs mb-4 uppercase">University Analytics</p>
+                        <div class="flex justify-between font-bold"><span>Total Colleges</span><span class="text-blue-700">124</span></div>
+                        <div class="flex justify-between font-bold mt-2"><span>Total Students</span><span class="text-blue-700">14,200</span></div>
+                    </div>
+                </div>`;
+        }
+
+        function chanAff() {
+            let list = affiliations.length ? affiliations.map(a => `<div class="p-3 border-b text-[10px] font-bold flex justify-between"><span>${a.name} (${a.email})</span> <button class="text-green-600">APPROVE</button></div>`).join('') : '<p class="text-xs text-gray-400">No pending requests.</p>';
+            document.getElementById('view').innerHTML = `<h2 class="text-3xl font-black mb-6 italic uppercase">Affiliation Requests</h2><div class="glass p-8">${list}</div>`;
+        }
+
+        function chanExam() {
+            document.getElementById('view').innerHTML = `<h2 class="text-3xl font-black mb-6 italic uppercase text-amber-600">Center Allocation</h2><div class="glass p-8"><p class="text-xs mb-4">Map colleges to exam centers (CCS Style)</p><select><option>Center 001 - MBU Campus</option><option>Center 002 - City Govt College</option></select><button class="w-full mbu-blue text-white p-3 rounded-xl mt-4 font-black text-[10px] uppercase">Allot & Lock Seats</button></div>`;
+        }
+
+        function chanSMS() {
+            document.getElementById('view').innerHTML = `<h2 class="text-3xl font-black mb-6 italic uppercase text-blue-500">Global SMS Center</h2><div class="glass p-8"><textarea class="w-full h-32 p-4 border rounded-xl font-bold" placeholder="Write message to all colleges/students..."></textarea><button onclick="alert('Broadcasted Successfully!')" class="w-full mbu-blue text-white p-3 rounded-xl mt-4 font-black text-[10px] uppercase italic">Fire Notification</button></div>`;
+        }
+
+        // --- COLLEGE FUNCTIONS ---
+        function colAdm() {
+            document.getElementById('view').innerHTML = `
+                <div class="glass p-10 border-t-8 border-blue-900">
+                    <h2 class="text-3xl font-black mb-8 italic uppercase">Unified Admission Node</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input placeholder="Student Full Name">
+                        <select><option>Medical (BMRIT/Nursing)</option><option>Commerce (B.Com)</option><option>Agri (B.Sc Agri)</option></select>
+                        <input type="date" placeholder="Admission Date">
+                        <input placeholder="Aadhar Number">
+                    </div>
+                    <button onclick="alert('Admission Recorded!')" class="w-full mbu-blue text-white p-4 rounded-xl mt-8 font-black uppercase italic">Push to University Cloud</button>
+                </div>`;
+        }
+
+        // --- STUDENT FUNCTIONS ---
+        function studentDashboard() {
+            document.getElementById('view').innerHTML = `
+                <div class="glass p-10 border-l-[15px] border-blue-900 flex justify-between items-center mb-8">
+                    <div><h2 class="text-4xl font-black italic text-blue-900 uppercase">Rahul Singh</h2><p class="font-bold text-xs text-amber-600">B.Sc Radiology | MBU-CCS786</p></div>
+                    <div class="text-right font-black text-xs uppercase">Status: <span class="text-green-600">Verified</span></div>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <button onclick="genDoc('DEGREE')" class="glass p-6 text-center hover:bg-gray-50 transition"><i class="fas fa-award text-2xl mb-2 text-blue-900"></i><p class="font-black text-[8px] uppercase">Degree</p></button>
+                    <button onclick="genAdmit()" class="glass p-6 text-center hover:bg-gray-50 transition"><i class="fas fa-id-card-alt text-2xl mb-2 text-amber-600"></i><p class="font-black text-[8px] uppercase">Admit Card</p></button>
+                    <button class="glass p-6 text-center hover:bg-gray-50 transition"><i class="fas fa-file-invoice text-2xl mb-2 text-green-600"></i><p class="font-black text-[8px] uppercase">Fee Receipt</p></button>
+                    <button class="glass p-6 text-center hover:bg-gray-50 transition"><i class="fas fa-book-medical text-2xl mb-2 text-red-600"></i><p class="font-black text-[8px] uppercase">Clinical Log</p></button>
+                </div>
+                <div id="printArea" class="mt-8"></div>`;
+        }
+
+        function genDoc(type) {
+            document.getElementById('printArea').innerHTML = `<div class="bg-white p-12 border-[15px] border-double border-blue-900 text-center shadow-2xl print-area">
+                <h1 class="text-3xl font-black text-blue-900 uppercase">Mansingh & Brothers University</h1>
+                <p class="text-[8px] font-black border-b-2 border-black pb-1 mb-10 italic uppercase">UGC Act 1956 | ABVMU Medical Compliance | CCS Exam Framework</p>
+                <p class="text-lg italic font-serif">This is to certify that</p>
+                <h2 class="text-4xl font-black my-4 uppercase border-b-2 border-black inline-block px-6">RAHUL SINGH</h2>
+                <p class="text-lg italic font-serif">has successfully earned the degree of</p>
+                <h3 class="text-2xl font-black mt-2 uppercase">B.SC RADIOLOGY (BMRIT)</h3>
+                <div class="flex justify-between items-end mt-20"><div id="qr"></div><div class="text-right italic font-serif text-2xl text-blue-900">Mansingh<br><span class="text-[8px] font-sans font-black uppercase text-black">Supreme Chancellor</span></div></div>
+            </div><button onclick="window.print()" class="w-full bg-black text-white p-4 mt-4 font-black uppercase">Print Professional Degree</button>`;
+            setTimeout(() => { new QRCode(document.getElementById("qr"), { text: "MBU-VERIFY-786", width: 60, height: 60 }); }, 50);
+        }
+
+        function genAdmit() {
+            document.getElementById('printArea').innerHTML = `<div class="bg-white p-8 border-4 border-black text-black print-area">
+                <div class="flex justify-between border-b-4 border-black mb-4"><b>MBU EXAM ADMIT CARD</b><b>2025-26</b></div>
+                <div class="grid grid-cols-2 text-xs font-black uppercase"><div>NAME: RAHUL SINGH<br>ROLL: MBU-786001<br>CENTER: MBU MAIN CAMPUS</div><div class="text-right">COURSE: BMRIT<br>SHIFT: 10:00 AM</div></div>
+                <table class="w-full mt-4 border-2 border-black text-[10px]"><tr><th class="border p-1">DATE</th><th class="border p-1">SUBJECT</th></tr><tr><td class="border p-1">15/01/2026</td><td class="border p-1">RADIATION PHYSICS</td></tr></table>
+            </div><button onclick="window.print()" class="w-full bg-blue-900 text-white p-4 mt-4 font-black uppercase">Print Admit Card</button>`;
+        }
+
+        // --- NEW AFFILIATION FORM ---
+        function applyAff() {
+            document.getElementById('loginGate').innerHTML = `
+                <div class="glass p-10">
+                    <h2 class="text-2xl font-black text-blue-900 mb-6 uppercase italic">College Affiliation Form</h2>
+                    <input id="afName" placeholder="College Name" class="mb-2">
+                    <input id="afEmail" placeholder="Official Email (For Credentials)" class="mb-2">
+                    <input id="afBed" placeholder="Hospital Bed Capacity" class="mb-2">
+                    <button onclick="submitAff()" class="w-full mbu-blue text-white py-4 rounded-xl font-black uppercase mt-4">Submit Application</button>
+                    <button onclick="location.reload()" class="w-full mt-4 text-[10px] font-black uppercase text-gray-400">Back to Login</button>
+                </div>`;
+        }
+
+        function submitAff() {
+            const name = document.getElementById('afName').value;
+            const email = document.getElementById('afEmail').value;
+            if(name && email) {
+                affiliations.push({name, email});
+                alert('Application Sent! Chancellor will review and send credentials to ' + email);
+                location.reload();
+            }
+        }
+
+        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleString(); }, 1000);
+    </script>
+</body>
+</html>
